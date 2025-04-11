@@ -1,38 +1,30 @@
 import streamlit as st
+from streamlit_webrtc import webrtc_streamer
 import requests
-import tempfile
-from streamlit_webrtc import webrtc_streamer, AudioProcessorBase
 import av
 
-st.title("🎙️ Pandu's AI Voice Assistant")
+st.set_page_config(page_title="Voice Assistant", layout="centered")
+st.title("🎙️ Talk to Your Assistant")
 
-st.markdown("Click below and speak. We'll transcribe and respond using GPT.")
+class AudioProcessor:
+    def __init__(self) -> None:
+        self.frames = []
 
-class AudioProcessor(AudioProcessorBase):
     def recv(self, frame: av.AudioFrame) -> av.AudioFrame:
-        audio = frame.to_ndarray().flatten().tobytes()
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as f:
-            f.write(audio)
-            f.flush()
-
-            # Send to backend API
-            files = {'file': open(f.name, 'rb')}
-            response = requests.post("http://35.239.162.91:8000/listen/", files=files)
-            data = response.json()
-
-            st.session_state["last"] = data
+        self.frames.append(frame)
         return frame
 
-webrtc_streamer(
-    key="mic",
-    audio_processor_factory=AudioProcessor,
-    media_stream_constraints={"audio": True, "video": False}
+ctx = webrtc_streamer(
+    key="speech",
+    mode="sendonly",
+    audio_receiver_size=256,
+    client_settings={"media_stream_constraints": {"audio": True, "video": False}},
+    processor_factory=AudioProcessor,
 )
 
-if "last" in st.session_state:
-    st.subheader("You said:")
-    st.write(st.session_state["last"]["you"])
-
-    st.subheader("GPT responded:")
-    st.write(st.session_state["last"]["gpt"])
+if st.button("Submit Audio"):
+    if ctx and ctx.processor and ctx.processor.frames:
+        st.info("Submitting audio…")
+        # Placeholder: You'd add logic here to send audio to your backend
+    else:
+        st.warning("No audio captured.")
