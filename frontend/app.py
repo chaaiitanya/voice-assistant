@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer, AudioProcessorBase
+from streamlit_webrtc import webrtc_streamer, WebRtcMode
 import numpy as np
 import queue
 import requests
@@ -56,9 +56,7 @@ class AudioProcessor(AudioProcessorBase):
 
 # === WebRTC Streamer ===
 webrtc_streamer(
-    key="voice-assistant-stream",
-    mode="sendonly",
-    audio_processor_factory=AudioProcessor,
-    media_stream_constraints={"audio": True, "video": False},
-    async_processing=True,
+    key="gpt_voice_stream",
+    mode=WebRtcMode.SENDRECV,  # ✅ use enum instead of string
+    ...
 )
