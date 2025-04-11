@@ -1,0 +1,9 @@
+openai
+whisper
+fastapi
+uvicorn
+pydub
+soundfile
+python-dotenv
+aiofiles
+streamlit
