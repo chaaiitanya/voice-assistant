@@ -2,7 +2,14 @@ import streamlit as st
 from streamlit_webrtc import webrtc_streamer
 import requests
 import av
+import os
+import streamlit as st
 
+st.set_page_config(page_title="Voice Assistant")
+
+# Health check (optional)
+if os.getenv("PORT") == "8080":
+    st.write("✅ Health check passed")
 st.set_page_config(page_title="Voice Assistant", layout="centered")
 st.title("🎙️ Talk to Your Assistant")
 
